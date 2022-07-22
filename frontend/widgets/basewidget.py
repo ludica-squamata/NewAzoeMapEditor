@@ -73,17 +73,17 @@ class BaseWidget(DirtySprite):
     def on_mouseover(self):
         self.has_mouse_over = True
 
-    def on_video_resize(self, evento):
-        pass
+    def on_video_resize(self):
+        self.dirty = 1
 
-    def on_maximize(self, evento):
-        pass
+    def on_maximize(self):
+        self.dirty = 1
 
-    def on_minimize(self, evento):
-        pass
+    def on_minimize(self):
+        self.dirty = 1
 
-    def on_restore(self, evento):
-        pass
+    def on_restore(self):
+        self.dirty = 1
 
     def update(self, *args, **kwargs):
         pass

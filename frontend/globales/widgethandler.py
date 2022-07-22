@@ -47,18 +47,42 @@ class WidgetHandler:
                 pass
 
             elif e.type == MOUSEBUTTONDOWN:
+                widgets = [w for w in cls.widgets if w.rect.collidepoint(e.pos)]
                 if e.button == 1:
-                    widgets = [w for w in cls.widgets if w.rect.collidepoint(e.pos)]
                     for widget in widgets:
                         widget.is_pressed = True
                         if widget.is_selectable:
                             cls.selected.sumar(widget)
 
+                elif e.button == 2:  # right button
+                    pass
+
+                elif e.button == 3:  # middle button
+                    pass
+
+                elif e.button == 4:  # scroll wheel up
+                    pass
+
+                elif e.button == 5:  # scroll wheel down
+                    pass
+
             elif e.type == MOUSEBUTTONUP:
+                widgets = [w for w in cls.widgets if w.is_pressed]
                 if e.button == 1:
-                    widgets = [w for w in cls.widgets if w.is_pressed]
                     for widget in widgets:
                         widget.on_mousebutton_up(e)
+
+                elif e.button == 2:  # right button
+                    pass
+
+                elif e.button == 3:  # middle button
+                    pass
+
+                elif e.button == 4:  # scroll wheel up
+                    pass
+
+                elif e.button == 5:  # scroll wheel down
+                    pass
 
             elif e.type == MOUSEMOTION:
                 widgets = [w for w in cls.widgets if w.has_mouse_over]
@@ -67,19 +91,19 @@ class WidgetHandler:
 
             elif e.type == VIDEORESIZE:
                 for widget in cls.widgets:
-                    widget.on_video_resize(e)
+                    widget.on_video_resize()
 
             elif e.type == WINDOWRESTORED:
                 for widget in cls.widgets:
-                    widget.on_restore(e)
+                    widget.on_restore()
 
             elif e.type == WINDOWMAXIMIZED:
                 for widget in cls.widgets:
-                    widget.on_maximize(e)
+                    widget.on_maximize()
 
             elif e.type == WINDOWMINIMIZED:
                 for widget in cls.widgets:
-                    widget.on_minimize(e)
+                    widget.on_minimize()
 
         pos = mouse.get_pos()
         for widget in cls.widgets:
