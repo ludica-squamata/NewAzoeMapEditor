@@ -1,8 +1,8 @@
 from frontend.globales import Renderer, WidgetHandler
-from pygame.sprite import DirtySprite
+from pygame.sprite import Sprite
 
 
-class BaseWidget(DirtySprite):
+class BaseWidget(Sprite):
     requested_layer = 0
     is_visible = True
     is_selected = False
@@ -32,19 +32,15 @@ class BaseWidget(DirtySprite):
 
     def select(self):
         self.is_selected = True
-        self.dirty = 1  # because the image will surely change.
 
     def deselect(self):
         self.is_selected = False
-        self.dirty = 1  # same as select()
 
     def enable(self):
         self.is_enabled = True
-        self.dirty = 1  # same as select()
 
     def disable(self):
         self.is_enabled = False
-        self.dirty = 1  # same as select()
 
     def on_deletion(self, event):
         pass
@@ -74,16 +70,16 @@ class BaseWidget(DirtySprite):
         self.has_mouse_over = True
 
     def on_video_resize(self):
-        self.dirty = 1
+        pass
 
     def on_maximize(self):
-        self.dirty = 1
+        pass
 
     def on_minimize(self):
-        self.dirty = 1
+        pass
 
     def on_restore(self):
-        self.dirty = 1
+        pass
 
     def update(self, *args, **kwargs):
         pass

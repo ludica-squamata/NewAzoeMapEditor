@@ -1,16 +1,17 @@
 from pygame import image, Surface, K_LEFT, K_RIGHT, K_UP, K_DOWN
+from frontend.globales import raised_border
 from frontend.widgets import BaseWidget
 from os import getcwd, path
 
 
 class MapArea(BaseWidget):
-    pos_x = 0
-    pos_y = 0
+    pos_x = 3
+    pos_y = 3
 
     def __init__(self, parent, **pos):
         super().__init__(parent)
         self.map = image.load(path.join(getcwd(), 'data', 'test_map.png')).convert_alpha()
-        self.image = Surface((640, 480))
+        self.image = raised_border(Surface((642, 482)))
         self.rect = self.image.get_rect(**pos)
         self.show()
 
@@ -41,16 +42,16 @@ class MapArea(BaseWidget):
             self.is_pressed = False
 
     def pan(self, key, delta):
-        self.dirty = 1
-        if key == 'left' and self.pos_x + delta >= -160:
+        if key == 'left' and self.pos_x + delta >= -161:
             self.pos_x += delta
-        elif key == 'right' and self.pos_x + delta <= 0:
+        elif key == 'right' and self.pos_x + delta <= 3:
             self.pos_x += delta
         if key == 'up' and self.pos_y + delta >= -321:
             self.pos_y += delta
-        if key == 'down' and self.pos_y + delta <= 0:
+        if key == 'down' and self.pos_y + delta <= 3:
             self.pos_y += delta
 
     def update(self):
         self.image.fill((0, 0, 0))
         self.image.blit(self.map, (self.pos_x, self.pos_y))
+        self.image = raised_border(self.image)
