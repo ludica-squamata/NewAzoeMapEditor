@@ -1,7 +1,5 @@
-from frontend.globales.contantes import COLOR_SELECTED  # ,  sysElmLight, sysElmShadow
 from backend.eventhandler import EventHandler
 from frontend.widgets import BaseWidget
-# from backend.util import raised_border
 from pygame import display, Surface
 from .map_area import MapArea
 

@@ -42,7 +42,7 @@ class BaseWidget(Sprite):
     def disable(self):
         self.is_enabled = False
 
-    def on_deletion(self, event):
+    def on_deletion(self, event=None):
         pass
 
     def on_focus_in(self, event):

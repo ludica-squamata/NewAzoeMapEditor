@@ -28,7 +28,6 @@ class WidgetHandler:
 
     @classmethod
     def del_widget(cls, widget):
-        widget.on_deletion()
         cls.widgets.remove(widget)
 
     @classmethod
@@ -51,8 +50,7 @@ class WidgetHandler:
                 if e.button == 1:
                     for widget in widgets:
                         widget.is_pressed = True
-                        if widget.is_selectable:
-                            cls.selected.sumar(widget)
+                        widget.on_mousebutton_down(e)
 
                 elif e.button == 2:  # right button
                     pass

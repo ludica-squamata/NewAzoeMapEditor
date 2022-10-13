@@ -1,4 +1,4 @@
-from frontend.globales import COLOR_SELECTED, COLOR_TEXT, COLOR_BOX, COLOR_DISABLED, COLOR_LIGHT, COLOR_SHADOW
+from frontend.globales import COLOR_SELECTED, COLOR_TEXT, COLOR_BOX, COLOR_DISABLED
 from frontend.globales import sunken_border, raised_border
 from backend.textrect import render_textrect
 from .basewidget import BaseWidget
@@ -6,7 +6,9 @@ from pygame import font
 
 
 class Button(BaseWidget):
-    def __init__(self, parent, text, method, w, txt_h=16, **postion):
+    method = None
+
+    def __init__(self, parent, text, w, txt_h=16, **postion):
         super().__init__(parent)
         self.img_uns = self.create(text, w, txt_h, COLOR_TEXT, style='raised')
         self.img_sel = self.create(text, w, txt_h, COLOR_SELECTED, style='raised')
@@ -14,16 +16,18 @@ class Button(BaseWidget):
         self.img_pre = self.create(text, w, txt_h, COLOR_SELECTED, style='sunken')
         self.image = self.img_uns
         self.rect = self.image.get_rect(**postion)
+
+    def set_method(self, method):
         self.method = method
 
     @staticmethod
     def create(text, w, txt_h, color, style='raised'):
         f = font.SysFont('Verdana', txt_h)
-        base = render_textrect(text, f, w+2, txt_h+2, color, COLOR_BOX)
+        base = render_textrect(text, f, w + 2, txt_h + 2, color, COLOR_BOX)
         if style == 'raised':
-            return raised_border(base, COLOR_LIGHT, COLOR_SHADOW)
+            return raised_border(base)
         elif style == 'sunken':
-            return sunken_border(base, COLOR_LIGHT, COLOR_SHADOW)
+            return sunken_border(base)
 
     def select(self):
         super().select()
