@@ -35,7 +35,7 @@ class MapArea(BaseWidget):
             filename = path.join(ruta, file)
             mapa = image.load(filename).convert_alpha()
             tb = Tab(self, f'Sin Título {i}', mapa, bottom=self.rect.top, left=w)
-            w = tb.rect.right + 1
+            w = tb.rect.right + 3
             self.tabs.append(tb)
             self.map_positions.append([3, 3])
             if self.tab_area.contains(tb.rect):
@@ -108,15 +108,33 @@ class MapArea(BaseWidget):
         self.sort_tabs()
 
     def sort_tabs(self):
-        x = self.tab_area.x
+        x = self.tab_area.x - 3
         tabs = [tab for tab in self.tabs if not tab.flagged]
         for tab in tabs:
-            tab.rect.x = x + 1
-            x += tab.rect.w + 1
+            tab.rect.x = x + 3
+            x += tab.rect.w + 3
             if not self.tab_area.contains(tab.rect):
                 tab.hide()
             elif not tab.is_visible:
                 tab.show()
+
+    def relocate_tabs(self, tab, dx):
+        idx = self.tabs.index(tab)
+        new_idx = None
+        tabs = set(self.tabs) - {tab}
+        for other_tab in tabs:
+            other_tab_index = self.tabs.index(other_tab)
+            if dx < other_tab.rect.left:
+                new_idx = other_tab_index-1
+            elif dx > other_tab.rect.right:
+                new_idx = other_tab_index
+        if dx < self.tab_area.left:
+            new_idx = 0
+        if dx > self.tab_area.right:
+            new_idx = -1
+        del self.tabs[idx]
+        self.tabs.insert(new_idx, tab)
+        self.sort_tabs()
 
     def update_arrow_status(self):
         if self.tabs[0].is_visible:
