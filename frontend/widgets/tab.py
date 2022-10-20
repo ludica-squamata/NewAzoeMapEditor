@@ -1,7 +1,8 @@
 from frontend.globales import COLOR_TEXT, COLOR_SELECTED, COLOR_DISABLED, COLOR_BOX
+from backend.eventhandler import EventHandler
 from backend.textrect import render_textrect
 from .basewidget import BaseWidget
-from pygame import font, mouse
+from pygame import font, mouse, Rect
 
 
 class Tab(BaseWidget):
@@ -21,6 +22,17 @@ class Tab(BaseWidget):
         self.linked_document = document
         self.image = self.img_uns
         self.rect = self.image.get_rect(**position)
+        EventHandler.register(self.get_out_of_the_way, 'TabDisplacement')
+
+    def get_out_of_the_way(self, event):
+        if event.origin is not self:
+            rect = event.data['rect']
+            if self.rect.collidepoint(rect.center):
+                half = Rect(self.rect.x, self.rect.y, self.rect.w // 2, self.rect.h)
+                if rect.colliderect(half):
+                    self.move(-1)
+                else:
+                    self.move(+1)
 
     def on_mousebutton_down(self, event):
         if event.button == 1:
@@ -42,7 +54,7 @@ class Tab(BaseWidget):
         return dx
 
     def move(self, direction):
-        self.rect.x += (self.w + 1) * direction
+        self.rect.x += (self.w + 3) * direction
 
     def select(self):
         super().select()
@@ -56,9 +68,15 @@ class Tab(BaseWidget):
         return f'Tab-{self.name}'
 
     def update(self, *args, **kwargs):
-        if self.has_mouse_over and self.is_dragged:
+        if self.is_dragged:
             dx = self.displace()
             self.rect.x = dx
+            EventHandler.trigger('TabDisplacement', self, {"rect": self.rect})
             if not self.is_pressed:  # on_mouseup()
                 self.parent.relocate_tabs(self, dx)
                 self.is_dragged = False
+
+    def __lt__(self, other):
+        self_idx = self.parent.tabs.index(self)
+        other_idx = self.parent.tabs.index(other)
+        return self_idx < other_idx

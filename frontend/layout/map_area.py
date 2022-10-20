@@ -122,7 +122,9 @@ class MapArea(BaseWidget):
         idx = self.tabs.index(tab)
         new_idx = None
         tabs = set(self.tabs) - {tab}
-        for other_tab in tabs:
+        agregated_w = 0
+        for other_tab in sorted(tabs):
+            agregated_w += other_tab.rect.w
             other_tab_index = self.tabs.index(other_tab)
             if dx < other_tab.rect.left:
                 new_idx = other_tab_index-1
