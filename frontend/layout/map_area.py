@@ -1,7 +1,7 @@
 from frontend.widgets.buttons import ArrowButton, CloseTabButton, AddTabButton
 from pygame import image, Surface, K_LEFT, K_RIGHT, K_UP, K_DOWN, Rect
+from frontend.globales import raised_border, WidgetHandler
 from frontend.widgets import BaseWidget, Tab
-from frontend.globales import raised_border
 from os import getcwd, path, listdir
 
 
@@ -29,12 +29,13 @@ class MapArea(BaseWidget):
         dw += self.add_tab_button.rect.w
         self.tab_area = Rect(self.arrow_left.rect.right + 1, self.arrow_left.rect.top, self.rect.w - dw - 18,
                              self.arrow_left.rect.h)
+        self.tab_area_widget = TabArea(self, self.tab_area)
         ruta = path.join(getcwd(), 'data')
         w = self.tab_area.x
         for i, file in enumerate(listdir(ruta), start=1):
             filename = path.join(ruta, file)
             mapa = image.load(filename).convert_alpha()
-            tb = Tab(self, f'Sin Título {i}', mapa, bottom=self.rect.top, left=w)
+            tb = Tab(self, 'Sin Título {}', i, mapa, bottom=self.rect.top, left=w)
             w = tb.rect.right + 3
             self.tabs.append(tb)
             self.map_positions.append([3, 3])
@@ -127,16 +128,20 @@ class MapArea(BaseWidget):
             agregated_w += other_tab.rect.w
             other_tab_index = self.tabs.index(other_tab)
             if dx < other_tab.rect.left:
-                new_idx = other_tab_index-1
+                new_idx = other_tab_index - 1
+                break
             elif dx > other_tab.rect.right:
-                new_idx = other_tab_index
+                new_idx = other_tab_index + 1
         if dx < self.tab_area.left:
             new_idx = 0
         if dx > self.tab_area.right:
             new_idx = -1
-        del self.tabs[idx]
-        self.tabs.insert(new_idx, tab)
-        self.current = new_idx
+        if new_idx != idx:
+            del self.tabs[idx]
+            self.tabs.insert(new_idx, tab)
+            self.current = self.tabs.index(tab)
+            for tab in self.tabs:
+                tab.idx = self.tabs.index(tab)
         self.sort_tabs()
 
     def update_arrow_status(self):
@@ -155,3 +160,18 @@ class MapArea(BaseWidget):
         mapa = self.tabs[self.current].linked_document
         self.image.blit(mapa, self.map_positions[self.current])
         self.image = raised_border(self.image)
+
+
+class TabArea(BaseWidget):
+    def __init__(self, parent, rect):
+        super().__init__(parent)
+        self.rect = rect
+        WidgetHandler.add_widget(self)
+
+    def on_mousebutton_down(self, event):
+        if event.button == 4:
+            if self.parent.arrow_left.is_enabled:
+                self.parent.arrow_left.method()
+        elif event.button == 5:
+            if self.parent.arrow_right.is_enabled:
+                self.parent.arrow_right.method()

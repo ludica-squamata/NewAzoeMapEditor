@@ -10,15 +10,16 @@ class Tab(BaseWidget):
     flagged = False
     is_dragged = False
 
-    def __init__(self, parent, name, document, **position):
+    def __init__(self, parent, name, idx, document, **position):
         super().__init__(parent)
         f = font.SysFont('Verdana', 12)
-        w, h = f.size(name)
-        self.name = name
+        self.name = name.format(idx)
+        w, h = f.size(self.name)
         self.w = w + 3
-        self.img_uns = render_textrect(name, f, self.w, h + 2, COLOR_TEXT, COLOR_BOX, justification=1)
-        self.img_sel = render_textrect(name, f, self.w, h + 2, COLOR_SELECTED, COLOR_BOX, justification=1)
-        self.img_dis = render_textrect(name, f, self.w, h + 2, COLOR_DISABLED, COLOR_BOX, justification=1)
+        self.idx = idx
+        self.img_uns = render_textrect(self.name, f, self.w, h + 2, COLOR_TEXT, COLOR_BOX, justification=1)
+        self.img_sel = render_textrect(self.name, f, self.w, h + 2, COLOR_SELECTED, COLOR_BOX, justification=1)
+        self.img_dis = render_textrect(self.name, f, self.w, h + 2, COLOR_DISABLED, COLOR_BOX, justification=1)
         self.linked_document = document
         self.image = self.img_uns
         self.rect = self.image.get_rect(**position)
@@ -77,6 +78,4 @@ class Tab(BaseWidget):
                 self.is_dragged = False
 
     def __lt__(self, other):
-        self_idx = self.parent.tabs.index(self)
-        other_idx = self.parent.tabs.index(other)
-        return self_idx < other_idx
+        return self.idx < other.idx

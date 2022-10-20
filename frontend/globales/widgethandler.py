@@ -47,40 +47,14 @@ class WidgetHandler:
 
             elif e.type == MOUSEBUTTONDOWN:
                 widgets = [w for w in cls.widgets if w.rect.collidepoint(e.pos)]
-                if e.button == 1:
-                    for widget in widgets:
-                        widget.is_pressed = True
-                        widget.on_mousebutton_down(e)
-
-                elif e.button == 2:  # right button
-                    pass
-
-                elif e.button == 3:  # middle button
-                    pass
-
-                elif e.button == 4:  # scroll wheel up
-                    pass
-
-                elif e.button == 5:  # scroll wheel down
-                    pass
+                for widget in widgets:
+                    widget.is_pressed = True
+                    widget.on_mousebutton_down(e)
 
             elif e.type == MOUSEBUTTONUP:
                 widgets = [w for w in cls.widgets if w.is_pressed]
-                if e.button == 1:
-                    for widget in widgets:
-                        widget.on_mousebutton_up(e)
-
-                elif e.button == 2:  # right button
-                    pass
-
-                elif e.button == 3:  # middle button
-                    pass
-
-                elif e.button == 4:  # scroll wheel up
-                    pass
-
-                elif e.button == 5:  # scroll wheel down
-                    pass
+                for widget in widgets:
+                    widget.on_mousebutton_up(e)
 
             elif e.type == MOUSEMOTION:
                 widgets = [w for w in cls.widgets if w.has_mouse_over]
