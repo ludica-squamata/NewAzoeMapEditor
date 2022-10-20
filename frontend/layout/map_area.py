@@ -99,8 +99,8 @@ class MapArea(BaseWidget):
         tab.flagged = True
         if idx == 0:
             self.current = 1
-        if idx == len(self.tabs) + 1:
-            self.current = len(self.tabs)
+        if idx >= len(self.tabs) - 1:
+            self.current = 0
         else:
             self.current = idx + 1
 
@@ -136,6 +136,7 @@ class MapArea(BaseWidget):
             new_idx = -1
         del self.tabs[idx]
         self.tabs.insert(new_idx, tab)
+        self.current = new_idx
         self.sort_tabs()
 
     def update_arrow_status(self):
