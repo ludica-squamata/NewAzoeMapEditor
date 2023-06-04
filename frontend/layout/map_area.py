@@ -3,6 +3,7 @@ from pygame import image, Surface, K_LEFT, K_RIGHT, K_UP, K_DOWN, Rect
 from frontend.globales import raised_border, WidgetHandler
 from frontend.widgets import BaseWidget, Tab
 from os import getcwd, path, listdir
+from subprocess import Popen, PIPE
 
 
 class MapArea(BaseWidget):
@@ -10,6 +11,7 @@ class MapArea(BaseWidget):
     tabs = None
     current = 0
     map_positions = None
+    file_opener = None
 
     def __init__(self, parent, **pos):
         super().__init__(parent)
@@ -26,26 +28,40 @@ class MapArea(BaseWidget):
         self.close_tab_button.set_method(self.close_tab)
         dw += self.close_tab_button.rect.w
         self.add_tab_button = AddTabButton(self, right=self.close_tab_button.rect.left, bottom=self.rect.top)
+        self.add_tab_button.set_method(self.open_tab_part1)
         dw += self.add_tab_button.rect.w
         self.tab_area = Rect(self.arrow_left.rect.right + 1, self.arrow_left.rect.top, self.rect.w - dw - 18,
                              self.arrow_left.rect.h)
         self.tab_area_widget = TabArea(self, self.tab_area)
         ruta = path.join(getcwd(), 'data')
-        w = self.tab_area.x
-        for i, file in enumerate(listdir(ruta), start=1):
+        self.tab_area_w = self.tab_area.x
+        for file in listdir(ruta):
             filename = path.join(ruta, file)
-            mapa = image.load(filename).convert_alpha()
-            tb = Tab(self, 'Sin Título {}', i, mapa, bottom=self.rect.top, left=w)
-            w = tb.rect.right + 3
-            self.tabs.append(tb)
-            self.map_positions.append([3, 3])
-            if self.tab_area.contains(tb.rect):
-                tb.show()
-            else:
-                tb.hide()
+            if filename.endswith('.png'):
+                self.create_tab(filename)
 
-        self.update_arrow_status()
+        if len(self.tabs):
+            self.update_arrow_status()
         self.show()
+
+    def create_tab(self, filename):
+        mapa = image.load(filename).convert_alpha()
+        tb = Tab(self, 'Sin Título {}', mapa, bottom=self.rect.top, left=self.tab_area_w)
+        self.tab_area_w = tb.rect.right + 3
+        self.tabs.append(tb)
+        self.map_positions.append([3, 3])
+        if self.tab_area.contains(tb.rect):
+            tb.show()
+        else:
+            tb.hide()
+
+        if len(self.tabs):
+            self.update_arrow_status()
+
+    @staticmethod
+    def base_image(w, h):
+        imagen = Surface((w, h))
+        return imagen
 
     def on_key_down(self, event):
         dx, dy = 0, 0
@@ -64,6 +80,10 @@ class MapArea(BaseWidget):
         if self.has_mouse_over and self.is_pressed:
             self.pan(*event.rel)
 
+    def on_mousebutton_down(self, event):
+        if event.button == 1:
+            self.is_pressed = True
+
     def on_mousebutton_up(self, event):
         if event.button == 1:
             self.is_pressed = False
@@ -75,13 +95,15 @@ class MapArea(BaseWidget):
         if 3 >= pos_y + dy >= -321:
             self.map_positions[self.current][1] += dy
 
-    def select_tab(self, tab):
-        if tab in self.tabs:
-            self.current = self.tabs.index(tab)
+    def select_tab(self, selected):
+        if selected in self.tabs:
+            self.current = self.tabs.index(selected)
 
         for idx, tab in enumerate(self.tabs):
             if idx != self.current:
                 tab.deselect()
+
+        selected.select()
 
     def pan_tabs(self, direction):
         for idx, tab in enumerate(self.tabs):
@@ -94,19 +116,33 @@ class MapArea(BaseWidget):
         self.update_arrow_status()
 
     def close_tab(self):
-        idx = self.current
-        tab = self.tabs[idx]
-        tab.hide()
-        tab.flagged = True
-        if idx == 0:
-            self.current = 1
-        if idx >= len(self.tabs) - 1:
-            self.current = 0
-        else:
-            self.current = idx + 1
+        if len(self.tabs):
+            idx = self.current
+            tab = self.tabs[idx]
+            tab.hide()
+            tab.flagged = True
+            if idx == 0:
+                self.current = 1
+            if idx >= len(self.tabs) - 1:
+                self.current = 0
+            else:
+                self.current = idx + 1
 
-        self.tabs[self.current].select()
-        self.sort_tabs()
+            self.tabs[self.current].select()
+            self.sort_tabs()
+
+    def open_tab_part1(self):
+        ruta = path.join(getcwd())
+        filepath = '\\\\\\'.join(ruta.split('/'))
+        self.file_opener = Popen("backend\\open.bat", cwd=filepath, stdout=PIPE)
+
+    def opeb_tab_part2(self):
+        stdout_data, stderr_data = self.file_opener.communicate()
+        self.file_opener.terminate()
+        self.file_opener = None
+        ruta = stdout_data.decode('utf-8')
+        ruta = ruta.strip()
+        self.create_tab(ruta)
 
     def sort_tabs(self):
         x = self.tab_area.x - 3
@@ -145,20 +181,24 @@ class MapArea(BaseWidget):
         self.sort_tabs()
 
     def update_arrow_status(self):
-        if self.tabs[0].is_visible:
-            self.arrow_left.disable()
-        else:
-            self.arrow_left.enable()
+        if len(self.tabs):
+            if self.tabs[0].is_visible:
+                self.arrow_left.disable()
+            else:
+                self.arrow_left.enable()
 
-        if self.tabs[-1].is_visible:
-            self.arrow_right.disable()
-        else:
-            self.arrow_right.enable()
+            if self.tabs[-1].is_visible:
+                self.arrow_right.disable()
+            else:
+                self.arrow_right.enable()
 
     def update(self):
+        if self.file_opener is not None:
+            self.opeb_tab_part2()
         self.image.fill((0, 0, 0))
-        mapa = self.tabs[self.current].linked_document
-        self.image.blit(mapa, self.map_positions[self.current])
+        if len(self.tabs):
+            mapa = self.tabs[self.current].linked_document
+            self.image.blit(mapa, self.map_positions[self.current])
         self.image = raised_border(self.image)
 
 

@@ -43,12 +43,12 @@ class WidgetHandler:
                     widget.on_key_down(e)
 
             elif e.type == KEYUP:
-                pass
+                for widget in cls.selected:
+                    widget.on_key_up(e)
 
             elif e.type == MOUSEBUTTONDOWN:
                 widgets = [w for w in cls.widgets if w.rect.collidepoint(e.pos)]
                 for widget in widgets:
-                    widget.is_pressed = True
                     widget.on_mousebutton_down(e)
 
             elif e.type == MOUSEBUTTONUP:

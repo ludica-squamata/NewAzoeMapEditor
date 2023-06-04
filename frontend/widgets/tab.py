@@ -10,13 +10,13 @@ class Tab(BaseWidget):
     flagged = False
     is_dragged = False
 
-    def __init__(self, parent, name, idx, document, **position):
+    def __init__(self, parent, name, document, **position):
         super().__init__(parent)
         f = font.SysFont('Verdana', 12)
-        self.name = name.format(idx)
+        self.idx = len(self.parent.tabs)+1
+        self.name = name.format(self.idx)
         w, h = f.size(self.name)
         self.w = w + 3
-        self.idx = idx
         self.img_uns = render_textrect(self.name, f, self.w, h + 2, COLOR_TEXT, COLOR_BOX, justification=1)
         self.img_sel = render_textrect(self.name, f, self.w, h + 2, COLOR_SELECTED, COLOR_BOX, justification=1)
         self.img_dis = render_textrect(self.name, f, self.w, h + 2, COLOR_DISABLED, COLOR_BOX, justification=1)
@@ -39,7 +39,6 @@ class Tab(BaseWidget):
         if event.button == 1:
             self.parent.select_tab(self)
             self.is_pressed = True
-            self.select()
 
     def on_mousebutton_up(self, event):
         if event.button == 1:
@@ -69,6 +68,10 @@ class Tab(BaseWidget):
         return f'Tab-{self.name}'
 
     def update(self, *args, **kwargs):
+        if self.is_pressed:
+            if not self.has_mouse_over:
+                self.is_pressed = False
+
         if self.is_dragged:
             dx = self.displace()
             self.rect.x = dx
